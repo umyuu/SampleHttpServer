@@ -8,13 +8,12 @@ using System.Configuration;
 
 namespace SampleHttpServer
 {
-    delegate void LogWriteEventHandler(string message);
     class Server
     {
         private HttpListener listener = new HttpListener();
         private readonly object locker = new object();
         private readonly string[] accept_urls = new[] { "/control", "/information" };
-        public event LogWriteEventHandler OnLogWrite;
+        public Action<string> OnLogWrite;// ログ出力用
         #region Start/Stop/IsListening
         public void Start()
         {

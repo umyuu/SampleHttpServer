@@ -15,7 +15,7 @@ namespace SampleHttpServer
         public MainWindow()
         {
             InitializeComponent();
-            server.OnLogWrite += Server_OnLogWrite;
+            server.OnLogWrite = Server_OnLogWrite;
         }
         private void Server_OnLogWrite(string text)
         {
