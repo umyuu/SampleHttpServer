@@ -21,7 +21,9 @@ namespace SampleHttpServer
             lock (this.locker)
             {
                 this.listener.Prefixes.Add(ConfigurationManager.AppSettings["prefix"]);
+                // 受信要求を受信
                 this.listener.Start();
+                // 受信要求の非同期の取得を開始
                 this.listener.BeginGetContext(this.OnRequested, this.listener);
             }
         }
