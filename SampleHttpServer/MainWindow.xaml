@@ -6,13 +6,16 @@
         xmlns:local="clr-namespace:SampleHttpServer"
         mc:Ignorable="d"
         Title="スレイブ側送受信ソフト" Height="350" Width="525">
-    <Grid>
+    <Grid Margin="0,0,3.4,-19.2">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="55*"/>
             <ColumnDefinition Width="34*"/>
-            <ColumnDefinition Width="430*"/>
+            <ColumnDefinition Width="86*"/>
+            <ColumnDefinition Width="344*"/>
         </Grid.ColumnDefinitions>
-        <Button x:Name="button" HorizontalAlignment="Left" Height="73" Margin="47.2,160,0,0" VerticalAlignment="Top" Width="159" Click="button_Click" Content="送受信ソフト起動" Grid.Column="2"/>
+        <Button x:Name="button" HorizontalAlignment="Left" Height="44" Margin="204.262,10,0,0" VerticalAlignment="Top" Width="129" Click="button_Click" Content="送受信ソフト起動" Grid.Column="3"/>
+        <ListBox x:Name="listBox" HorizontalAlignment="Left" Height="272" VerticalAlignment="Top" Width="255" Grid.ColumnSpan="4" Margin="0,39,0,0"/>
+        <Label x:Name="label" Grid.ColumnSpan="3" Content="通信ログ" HorizontalAlignment="Left" Margin="0,13,0,0" VerticalAlignment="Top" Width="100"/>
 
     </Grid>
 </Window>

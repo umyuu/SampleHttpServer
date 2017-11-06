@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using System.Windows;
 using System.Configuration;
 using System.Linq;
@@ -14,6 +15,19 @@ namespace SampleHttpServer
         public MainWindow()
         {
             InitializeComponent();
+            server.OnLogWrite += Server_OnLogWrite;
+        }
+        private void Server_OnLogWrite(string text)
+        {
+            #region listbox追加用
+            this.listBox.Dispatcher.BeginInvoke(
+                new Action(() => {
+                    listBox.Items.Add(text);
+                }));
+            #endregion
+            #region コンソール出力用
+            //Console.WriteLine(text);
+            #endregion
         }
 
         private void button_Click(object sender, RoutedEventArgs e)

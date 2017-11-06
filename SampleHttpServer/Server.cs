@@ -8,11 +8,13 @@ using System.Configuration;
 
 namespace SampleHttpServer
 {
+    delegate void LogWriteEventHandler(string message);
     class Server
     {
         private HttpListener listener = new HttpListener();
         private readonly object locker = new object();
         private readonly string[] accept_urls = new[] { "/control", "/information" };
+        public event LogWriteEventHandler OnLogWrite;
         #region Start/Stop/IsListening
         public void Start()
         {
@@ -36,6 +38,7 @@ namespace SampleHttpServer
             get { return this.listener.IsListening; }
         }
         #endregion
+        // 受信イベント
         public void OnRequested(System.IAsyncResult result)
         {
             if (!this.IsListening)
@@ -49,7 +52,7 @@ namespace SampleHttpServer
                 HttpListenerRequest request = context.Request;
                 using (HttpListenerResponse response = context.Response)
                 {
-                    System.Console.WriteLine(string.Format("time:{0},url:{1}", DateTime.Now.ToString("yyyyMMddHHmmssfff"), request.RawUrl));
+                    OnLogWrite(string.Format("time:{0},url:{1}", DateTime.Now.ToString("yyyyMMddHHmmssfff"), request.RawUrl));
                     this.requestParser(context);
                 }
             }
@@ -58,6 +61,7 @@ namespace SampleHttpServer
                 this.listener.BeginGetContext(this.OnRequested, this.listener);
             }
         }
+        // 受信内容を解析
         private void requestParser(HttpListenerContext context)
         {
             HttpListenerRequest request = context.Request;
@@ -72,7 +76,8 @@ namespace SampleHttpServer
             if (request.RawUrl.StartsWith(accept_urls[0]))
             {
                 string s = GetRequestPostData(request);
-                Console.WriteLine(s);
+                OnLogWrite(s);
+                // 信号を元にこの部分に処理を記述！！
                 response.StatusCode = GetRandomStatusCode();
                 return;
             }
@@ -83,12 +88,18 @@ namespace SampleHttpServer
                 return;
             }
         }
+        // ランダムにHTTPステータスコードを返す。
         private static int GetRandomStatusCode()
         {
             System.Random rnd = new System.Random();
             HttpStatusCode[] code = new HttpStatusCode[] { HttpStatusCode.OK, HttpStatusCode.BadRequest };
-            return (int)code[rnd.Next(code.Length)];
+
+            // 今はステータスコード:200固定
+            return (int)HttpStatusCode.OK;
+            //return (int)code[rnd.Next(code.Length)];
+
         }
+        // POSTデータを取得
         private static string GetRequestPostData(HttpListenerRequest request)
         {
             if (!request.HasEntityBody)
