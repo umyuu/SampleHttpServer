@@ -65,7 +65,7 @@ namespace SampleHttpServer
         {
             HttpListenerRequest request = context.Request;
             HttpListenerResponse response = context.Response;
-            if (!accept_urls.Any(a => a.StartsWith(request.RawUrl)))
+            if (!accept_urls.Any(a => a.Equals(request.RawUrl, StringComparison.OrdinalIgnoreCase)))
             {
                 // todo: /favicon.icoの扱い
                 response.StatusCode = (int)HttpStatusCode.NotFound;
@@ -76,6 +76,12 @@ namespace SampleHttpServer
             {
                 string s = GetRequestPostData(request);
                 OnLogWrite(s);
+                if(s.Length == 0)
+                {
+                    // postデータなし。
+                    response.StatusCode = (int)HttpStatusCode.BadRequest;
+                    return;
+                }
                 // 信号を元にこの部分に処理を記述！！
                 response.StatusCode = GetRandomStatusCode();
                 return;
@@ -87,16 +93,16 @@ namespace SampleHttpServer
                 return;
             }
         }
+        #region static
         // ランダムにHTTPステータスコードを返す。
         private static int GetRandomStatusCode()
         {
-            System.Random rnd = new System.Random();
-            HttpStatusCode[] code = new HttpStatusCode[] { HttpStatusCode.OK, HttpStatusCode.BadRequest };
+            var rnd = new System.Random();
+            var code = new HttpStatusCode[] { HttpStatusCode.OK, HttpStatusCode.BadRequest };
 
             // 今はステータスコード:200固定
             return (int)HttpStatusCode.OK;
             //return (int)code[rnd.Next(code.Length)];
-
         }
         // POSTデータを取得
         private static string GetRequestPostData(HttpListenerRequest request)
@@ -113,5 +119,6 @@ namespace SampleHttpServer
                 }
             }
         }
+        #endregion
     }
 }
