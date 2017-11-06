@@ -41,14 +41,16 @@ namespace SampleHttpServer
         // 受信イベント
         public void OnRequested(System.IAsyncResult result)
         {
-            if (!this.IsListening)
+            HttpListener listener = result.AsyncState as HttpListener;
+            Debug.Assert(listener != null);
+            if (!listener.IsListening)
             {
                 // 受信開始→終了でOnRequestedイベントが発火するため、受信待機状態でない時はSkip
                 return;
             }
             try
             {
-                HttpListenerContext context = this.listener.EndGetContext(result);
+                HttpListenerContext context = listener.EndGetContext(result);
                 HttpListenerRequest request = context.Request;
                 using (HttpListenerResponse response = context.Response)
                 {
@@ -60,7 +62,7 @@ namespace SampleHttpServer
             }
             finally
             {
-                this.listener.BeginGetContext(this.OnRequested, this.listener);
+                listener.BeginGetContext(this.OnRequested, listener);
             }
         }
         // 受信内容を解析
