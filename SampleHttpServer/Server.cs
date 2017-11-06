@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Configuration;
+using System.Diagnostics;
 
 namespace SampleHttpServer
 {
@@ -53,6 +54,8 @@ namespace SampleHttpServer
                 {
                     OnLogWrite(string.Format("time:{0},url:{1}", DateTime.Now.ToString("yyyyMMddHHmmssfff"), request.RawUrl));
                     this.requestParser(context);
+                    OnLogWrite(response.StatusCode.ToString());
+                    //Debug.Assert();
                 }
             }
             finally
@@ -65,6 +68,9 @@ namespace SampleHttpServer
         {
             HttpListenerRequest request = context.Request;
             HttpListenerResponse response = context.Response;
+            // この箇所に送信元のIPアドレスを元にした送信リクエストチェックがほぼ必要。
+            OnLogWrite(request.RemoteEndPoint.ToString());
+            // 受け入れるURL
             if (!accept_urls.Any(a => a.Equals(request.RawUrl, StringComparison.OrdinalIgnoreCase)))
             {
                 // todo: /favicon.icoの扱い
@@ -82,7 +88,7 @@ namespace SampleHttpServer
                     response.StatusCode = (int)HttpStatusCode.BadRequest;
                     return;
                 }
-                // 信号を元にこの部分に処理を記述！！
+                // 受信した信号を元にこの部分にスレイブ側の処理を記述！！
                 response.StatusCode = GetRandomStatusCode();
                 return;
             }
