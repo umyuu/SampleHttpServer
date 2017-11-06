@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Net;
 using System.Windows;
-using System.Configuration;
 using System.Linq;
 
 namespace SampleHttpServer
@@ -11,7 +9,7 @@ namespace SampleHttpServer
     /// </summary>
     public partial class MainWindow : Window
     {
-        private Server server = new Server();
+        private readonly Server server = new Server();
         public MainWindow()
         {
             InitializeComponent();
