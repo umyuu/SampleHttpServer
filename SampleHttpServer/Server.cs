@@ -50,21 +50,15 @@ namespace SampleHttpServer
                 // 受信開始→終了でOnRequestedイベントが発火するため、受信待機状態でない時はSkip
                 return;
             }
-            try
+            HttpListenerContext context = listener.EndGetContext(result);
+            listener.BeginGetContext(this.OnRequested, listener);
+            HttpListenerRequest request = context.Request;
+            using (HttpListenerResponse response = context.Response)
             {
-                HttpListenerContext context = listener.EndGetContext(result);
-                HttpListenerRequest request = context.Request;
-                using (HttpListenerResponse response = context.Response)
-                {
-                    OnLogWrite(string.Format("time:{0},url:{1}", DateTime.Now.ToString("yyyyMMddHHmmssfff"), request.RawUrl));
-                    this.requestParser(context);
-                    OnLogWrite(response.StatusCode.ToString());
-                    //Debug.Assert();
-                }
-            }
-            finally
-            {
-                listener.BeginGetContext(this.OnRequested, listener);
+                OnLogWrite(string.Format("time:{0},url:{1}", DateTime.Now.ToString("yyyyMMddHHmmssfff"), request.RawUrl));
+                this.requestParser(context);
+                OnLogWrite(response.StatusCode.ToString());
+                //Debug.Assert();
             }
         }
         // 受信内容を解析
