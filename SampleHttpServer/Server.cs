@@ -41,31 +41,34 @@ namespace SampleHttpServer
         }
         #endregion
         // 受信イベント
-        public void OnRequested(System.IAsyncResult result)
+        public void OnRequested(IAsyncResult result)
         {
-            HttpListener listener = result.AsyncState as HttpListener;
+            var listener = result.AsyncState as HttpListener;
             Debug.Assert(listener != null);
             if (!listener.IsListening)
             {
                 // 受信開始→終了でOnRequestedイベントが発火するため、受信待機状態でない時はSkip
                 return;
             }
-            HttpListenerContext context = listener.EndGetContext(result);
+            var context = listener.EndGetContext(result);
             listener.BeginGetContext(this.OnRequested, listener);
-            HttpListenerRequest request = context.Request;
-            using (HttpListenerResponse response = context.Response)
+            Task.Factory.StartNew(() =>
             {
-                OnLogWrite(string.Format("time:{0},url:{1}", DateTime.Now.ToString("yyyyMMddHHmmssfff"), request.RawUrl));
-                this.requestParser(context);
-                OnLogWrite(response.StatusCode.ToString());
-                //Debug.Assert();
-            }
+                var request = context.Request;
+                using (var response = context.Response)
+                {
+                    OnLogWrite(string.Format("time:{0},url:{1}", DateTime.Now.ToString("yyyyMMddHHmmssfff"), request.RawUrl));
+                    this.requestParser(context);
+                    OnLogWrite(response.StatusCode.ToString());
+                    //Debug.Assert();
+                }
+            });
         }
         // 受信内容を解析
         private void requestParser(HttpListenerContext context)
         {
-            HttpListenerRequest request = context.Request;
-            HttpListenerResponse response = context.Response;
+            var request = context.Request;
+            var response = context.Response;
             // この箇所に送信元のIPアドレスを元にした送信リクエストチェックがほぼ必要。
             OnLogWrite(request.RemoteEndPoint.ToString());
             // 受け入れるURL
@@ -78,7 +81,7 @@ namespace SampleHttpServer
             // /control
             if (request.RawUrl.StartsWith(accept_urls[0]))
             {
-                string s = GetRequestPostData(request);
+                var s = GetRequestPostData(request);
                 OnLogWrite(s);
                 if(s.Length == 0)
                 {
@@ -115,9 +118,9 @@ namespace SampleHttpServer
             {
                 return string.Empty;
             }
-            using (System.IO.Stream body = request.InputStream)
+            using (var body = request.InputStream)
             {
-                using (System.IO.StreamReader reader = new System.IO.StreamReader(body, request.ContentEncoding))
+                using (var reader = new System.IO.StreamReader(body, request.ContentEncoding))
                 {
                     return reader.ReadToEnd();
                 }
